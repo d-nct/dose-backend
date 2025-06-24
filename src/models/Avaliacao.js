@@ -12,9 +12,18 @@ const avaliacaoSchema = new Schema({
     type: String,
     trim: true,
   },
+  destilado_base: {
+    type: String,
+    trim: true,
+  },
   usuario: {
     type: Schema.Types.ObjectId,
     ref: 'Usuario',
+    required: true,
+  },
+  estabelecimento: {
+    type: Schema.Types.ObjectId,
+    ref: 'Estabelecimento',
     required: true,
   },
   drink: {

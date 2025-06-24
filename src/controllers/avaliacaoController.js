@@ -64,7 +64,8 @@ const votarAvaliacao = async (req, res) => {
       avaliacaoId,
       update,
       { new: true }
-    );
+    ).populate('usuario', 'nome_usuario') 
+     .populate('drink', 'nome')           
 
     res.json(avaliacaoAtualizada);
 
@@ -79,6 +80,10 @@ const listarAvaliacoes = async (req, res) => {
   try {
     // const avaliacoes = await Avaliacao.find().populate('usuario', 'nome_usuario');
     const avaliacoes = await Avaliacao.find()
+      .populate('usuario', 'nome_usuario') 
+      .populate('drink', 'nome imagem')           
+      .sort({ data_criacao: -1 });         
+
     res.json(avaliacoes);
   } catch (err) {
     res.status(500).json({ message: 'Erro ao buscar avaliações.' });
@@ -111,7 +116,7 @@ const obterAvaliacaoPorId = async (req, res) => {
   try {
     const avaliacao = await Avaliacao.findById(req.params.id)
       .populate('usuario', 'nome_usuario')
-      .populate('drink', 'nome');
+      .populate('drink', 'nome imagem')           
     
     if (!avaliacao) {
       return res.status(404).json({ message: 'Avaliação não encontrada.' });
@@ -170,17 +175,17 @@ const deletarAvaliacao = async (req, res) => {
     }
 
     // Autenticação
-    if (avaliacao.usuario.toString() == req.user.id ||
+    if (avaliacao.usuario._id !== req.user.id ||
         req.user.credencial < 1
     ) {
-        // Remoção
-        await Avaliacao.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Avaliação removida com sucesso.' });
+      return res.status(401).json({ message: 'Usuário não autorizado.' });
     }
-
-    return res.status(401).json({ message: 'Usuário não autorizado.' });
+    // Remoção
+    await Avaliacao.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Avaliação removida com sucesso.' });
+    
   } catch (err) {
-    res.status(500).json({ message: 'Erro no servidor.' });
+    res.status(500).json({ message: 'Erro no servidor.', error: err.message });
   }
 };
 
