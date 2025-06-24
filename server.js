@@ -18,6 +18,9 @@ app.use(express.json());
 // Publica o diretório public
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Imagens
+app.use('/uploads', express.static('uploads'));
+
 // CORS
 const whitelist = [
   'http://localhost:9000',          // DEV

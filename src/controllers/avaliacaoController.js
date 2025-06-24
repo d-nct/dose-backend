@@ -82,6 +82,7 @@ const listarAvaliacoes = async (req, res) => {
     const avaliacoes = await Avaliacao.find()
       .populate('usuario', 'nome_usuario') 
       .populate('drink', 'nome imagem')           
+      .populate('estabelecimento', 'nome')           
       .sort({ data_criacao: -1 });         
 
     res.json(avaliacoes);
@@ -92,16 +93,18 @@ const listarAvaliacoes = async (req, res) => {
 
 // POST /api/avaliacoes
 const criarAvaliacao = async (req, res) => {
-  const { drink, nota, comentario } = req.body;
-
   const usuario = req.user.id; // Usa o usuário logado
 
-  const novaAvaliacao = new Avaliacao({
-    usuario,
-    drink,
-    nota,
-    comentario
-  });
+  // Cria o objeto dinamicamente
+  const novidade = {}
+  novidade.usuario = usuario
+  novidade.drink = req.body.drink
+  novidade.nota = req.body.nota
+  if (req.body.comentario) novidade.comentario = req.body.comentario
+  if (req.body.destilado_base) novidade.destilado_base = req.body.destilado_base
+  if (req.body.estabelecimento) novidade.estabelecimento = req.body.estabelecimento
+
+  const novaAvaliacao = new Avaliacao(novidade);
 
   try {
     const avaliacaoSalva = await novaAvaliacao.save();

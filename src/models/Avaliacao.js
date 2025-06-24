@@ -24,7 +24,7 @@ const avaliacaoSchema = new Schema({
   estabelecimento: {
     type: Schema.Types.ObjectId,
     ref: 'Estabelecimento',
-    required: true,
+    required: false,
   },
   drink: {
     type: Schema.Types.ObjectId,

@@ -12,13 +12,21 @@ const listarEstabelecimentos = async (req, res) => {
 
 // POST /api/estabelecimento
 const criarEstabelecimento = async (req, res) => {
-  const { nome, endereco, imagem } = req.body;
+  if (!req.body.nome) {
+    return res.status(400).json({ message: 'O campo "nome" é obrigatório.' });
+  }
 
-  const objeto = new Estabelecimento({
-    nome,
-    endereco,
-    imagem
-  });
+  // Cria o objeto dinamicamente
+  const novidade = {}
+  novidade.nome = req.body.nome
+  if (req.body.endereco) novidade.endereco = req.body.endereco
+
+  // Para imagem
+  if (req.file) {
+    novidade.imagem = req.file.path;
+  }
+
+  const objeto = new Estabelecimento(novidade);
 
   try {
     const objSalvo = await objeto.save();
