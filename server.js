@@ -24,7 +24,7 @@ app.use('/uploads', express.static('uploads'));
 // CORS
 const whitelist = [
   'http://localhost:9000',          // DEV
-  'https://bora-dose.vercel.app/'   // PROD
+  'https://bora-dose.vercel.app'    // PROD
 ];
 
 const corsOptions = {
