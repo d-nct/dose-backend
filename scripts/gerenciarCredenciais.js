@@ -1,17 +1,25 @@
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const Usuario = require('../models/Usuario.js');
-const connectDB = require('../config/db.js');
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import Usuario from '../src/models/Usuario.js';
 
 // Carrega o .env
-dotenv.config({ path: '../../.env' });
+dotenv.config({ path: '.env' });
+
+console.log(process.env.PORT);
 
 // Conecta ao BD
-connectDB();
+try {
+  // const mongoURI = process.env.MONGO_URI;
+  const mongoURI = process.env.MONGO_URI_PROD;
+  const conn = await mongoose.connect(mongoURI);
+  console.log(`MongoDB Conectado: ${conn.connection.host}`);
+} catch (error) {
+  console.error(`Erro ao conectar ao MongoDB: ${error.message}`);
+  process.exit(1);
+}
+
 
 const gerenciarCredencial = async () => {
-  await connectDB();
-
   try {
     // Pegamos os argumentos da linha de comando
     // Ex: node scripts/gerenciarCredenciais.js nomeDoUsuario admLevel
