@@ -55,8 +55,7 @@ const getOneFile = async (req, res) => {
       })
     }
   } catch (err) {
-    console.error('Erro ao listar arquivos:', err); // Log do erro para debugging
-    res.status(500).json({ message: 'Não foi possível listar os arquivos.' });
+    res.status(500).json({ message: 'Não foi possível listar os arquivos.', error: err});
   }
 };
 
