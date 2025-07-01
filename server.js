@@ -36,7 +36,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'uploads')));
 
 // Imagens
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/apinga/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Rotas de API
 // ============
