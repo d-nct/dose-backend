@@ -30,10 +30,7 @@ const drinkSchema = new Schema({
       ref: 'Estabelecimento',
       required: true,
     },
-    preco: {
-      type: Schema.Types.Decimal128, 
-    },
-    data_preco: {
+    data: {
       type: Date,
       default: Date.now,
     }

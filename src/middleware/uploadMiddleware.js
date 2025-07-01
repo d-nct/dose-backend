@@ -4,12 +4,14 @@ const path = require('path');
 // Configuração do armazenamento em disco
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/'); // Onde salvar os arquivos
+    cb(null, 'uploads/'); // Onde salvar os arquivos
   },
   filename: function (req, file, cb) {
-    // Cria um nome de arquivo único para evitar conflitos
+    // Preserva o nome original do arquivo (substituindo espaços) e adiciona um sufixo único
+    const originalName = path.basename(file.originalname, path.extname(file.originalname)).replace(/\s+/g, '_');
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    const extension = path.extname(file.originalname);
+    cb(null, `${originalName}-${uniqueSuffix}${extension}`);
   }
 });
 

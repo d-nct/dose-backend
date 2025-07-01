@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
+const multer = require('multer');
+
+const upload = multer();
+
 
 const {
   listarEstabelecimentos,
@@ -11,7 +15,7 @@ const {
 } = require('../controllers/estabelecimentoController');
 
 // Define as rotas de CRUD
-router.post('/', protect, criarEstabelecimento);        // CREATE
+router.post('/', protect, upload.single('imagem'), criarEstabelecimento);        // CREATE
 router.get('/', listarEstabelecimentos);                // READ ALL
 router.get('/:id', obterEstabelecimentoPorId);          // REAL ONE
 router.put('/:id', protect, atualizarEstabelecimento);  // UPDATE

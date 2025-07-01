@@ -22,9 +22,7 @@ const criarEstabelecimento = async (req, res) => {
   if (req.body.endereco) novidade.endereco = req.body.endereco
 
   // Para imagem
-  if (req.file) {
-    novidade.imagem = req.file.path;
-  }
+  if (req.file) novidade.imagem = req.file.path
 
   const objeto = new Estabelecimento(novidade);
 

@@ -103,6 +103,8 @@ const criarAvaliacao = async (req, res) => {
   if (req.body.comentario) novidade.comentario = req.body.comentario
   if (req.body.destilado_base) novidade.destilado_base = req.body.destilado_base
   if (req.body.estabelecimento) novidade.estabelecimento = req.body.estabelecimento
+  if (req.body.preco) novidade.preco = req.body.preco
+  if (req.file) novidade.imagem = req.file.path
 
   const novaAvaliacao = new Avaliacao(novidade);
 
@@ -192,6 +194,29 @@ const deletarAvaliacao = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Lista todas as avaliações feitas pelo usuário logado.
+ * @route   GET /api/avaliacoes/minhas  (ou /api/usuarios/meu-perfil/avaliacoes, como no frontend)
+ * @access  Protegido
+ */
+const listarMinhasAvaliacoes = async (req, res) => {
+  try {
+    const usuarioLogadoId = req.user._id;
+
+    const minhasAvaliacoes = await Avaliacao.find({ usuario: usuarioLogadoId })
+      .populate('drink', 'nome imagem') // Exemplo: popular nome e imagem do drink avaliado
+      .populate('estabelecimento', 'nome endereco') // Exemplo: popular nome e imagem do drink avaliado
+      .sort({ createdAt: -1 }); // Opcional: Ordenar pelas mais recentes
+
+    res.json(minhasAvaliacoes);
+  } catch (error) {
+    console.error('Erro ao listar minhas avaliações:', error); // Log mais detalhado no servidor
+    res.status(500).json({ message: 'Erro interno do servidor ao buscar avaliações.' });
+  }
+};
+
+
+
 module.exports = {
   listarAvaliacoes,
   criarAvaliacao,
@@ -199,4 +224,5 @@ module.exports = {
   atualizarAvaliacao,
   deletarAvaliacao,
   votarAvaliacao,
+  listarMinhasAvaliacoes,
 };

@@ -31,6 +31,14 @@ const avaliacaoSchema = new Schema({
     ref: 'Drink',
     required: true,
   },
+  preco: {
+    type: Schema.Types.Decimal128, 
+    required: false,
+  },
+  imagem: {
+    type: String,
+    trim: true,
+  },
   upvotes: [{
     type: Schema.Types.ObjectId,
     ref: 'Usuario'

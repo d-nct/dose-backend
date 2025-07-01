@@ -1,11 +1,10 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Usuario from '../src/models/Usuario.js';
+import bcrypt from 'bcryptjs';
 
 // Carrega o .env
 dotenv.config({ path: '.env' });
-
-console.log(process.env.PORT);
 
 // Conecta ao BD
 try {
@@ -61,5 +60,29 @@ const gerenciarCredencial = async () => {
   }
 };
 
+const criaAdm = async () => {
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(process.env.ADM_PWD, salt);
+
+  const adm = new Usuario({
+    nome_usuario: process.env.ADM_USR,
+    credencial: 3,
+    hash_senha: hash
+  })
+
+  try {
+    adm.save();
+    console.log("Conta de administração criada!");
+  } catch (err) {
+    console.log("Falha em salvar a conta de administração no BD!");
+  } finally {
+    mongoose.disconnect();
+  }
+}
+
 // Executa a função
-gerenciarCredencial();
+if (process.argv[2] == "adm") {
+  criaAdm();
+} else {
+  gerenciarCredencial();
+}

@@ -2,21 +2,18 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/uploadMiddleware');
 const { protect } = require('../middleware/authMiddleware');
+const {
+  uploadFile,
+  getFiles,
+  deleteFile,
+  getOneFile,
+} = require('../controllers/uploadController');
 
-// A rota espera um único arquivo com o nome do campo 'image'
-router.post('/', protect, upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: 'Por favor, envie um arquivo.' });
-  }
+// Rotas
+router.post('/', protect, upload.single('image'), uploadFile);
+router.get('/', getFiles);
+router.get('/:id', getOneFile);
 
-  // Constrói a URL completa para ser salva no banco de dados
-  const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-  
-  // Retorna a URL para o frontend
-  res.status(200).json({
-    message: 'Upload realizado com sucesso!',
-    url: imageUrl,
-  });
-});
+router.route('/:filename').delete(protect, deleteFile);
 
 module.exports = router;

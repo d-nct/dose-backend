@@ -340,6 +340,8 @@ const deletarUsuario = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   loginUsuario,
   listarUsuarios,

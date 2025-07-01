@@ -13,14 +13,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
 
-app.use(express.json());
-
-// Publica o diretório public
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Imagens
-app.use('/uploads', express.static('uploads'));
-
 // CORS
 const whitelist = [
   'http://localhost:9000',          // DEV
@@ -37,6 +29,14 @@ const corsOptions = {
   }
 };
 app.use(cors(corsOptions));
+
+app.use(express.json());
+
+// Publica o diretório public
+app.use(express.static(path.join(__dirname, 'uploads')));
+
+// Imagens
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Rotas de API
 // ============
