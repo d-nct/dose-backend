@@ -309,7 +309,12 @@ const deletarUsuario = async (req, res) => {
 const obterAvaliacoesPorUsuario = async (req, res) => {
   try {
     const { id } = req.params;
-    const avaliacoes = await Avaliacao.find({ usuario: id });
+    const avaliacoes = await Avaliacao.find({ usuario: id })
+      .populate('usuario', 'nome_usuario') 
+      .populate('drink', 'nome imagem')           
+      .populate('estabelecimento', 'nome')           
+      .sort({ data_criacao: -1 });         
+
     res.json(avaliacoes);
   } catch (error) {
     res.status(500).json({ message: 'Erro ao buscar avaliações do usuário.', error: error.message });
