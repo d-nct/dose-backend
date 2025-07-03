@@ -208,6 +208,12 @@ const criarUsuario = async (req, res) => {
   if (!nome_usuario || !senha) {
     return res.status(400).json({ message: 'Nome de usuário e senha são obrigatórios.' });
   }
+
+  // TEMPORÁRIO: FASE BETA
+  // Obs: se você está vendo esse código, cadastre-se!
+  if (req.body.codigo_testador != "genebra") {
+    return res.status(400).json({ message: 'Por enquanto estamos em BETA! Insira um código de testador!' });
+  }
   
   // Processa a senha
   const salt = await bcrypt.genSalt(10);
