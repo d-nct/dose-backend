@@ -1,4 +1,5 @@
 const Drink = require('../models/Drink.js');
+const { deleteImage } = require('../utils/fileHelper.js');
 
 // Funções auxiliares
 
@@ -125,38 +126,32 @@ const listarDrinks = async (req, res) => {
  */
 const criarDrink = async (req, res) => {
   try {
-    const { nome, descricao, imagem, categoria, ondeEncontrar } = req.body;
-    
-    // Pega o ID do usuário logado, que é obrigatório para saber quem criou o drink
-    const usuarioId = req.user.id; 
+    const { nome, descricao, categoria, ondeEncontrar } = req.body;
+    const usuarioId = req.user.id;
 
-    // Campos obrigatórios
     if (!nome) {
       return res.status(400).json({ message: 'O nome do drink é um campo obrigatório.' });
     }
 
-    // Obrigatórios
     const dadosDoDrink = {
       nome,
       usuario: usuarioId,
     };
 
-    // Adiciona os campos opcionais ao objeto APENAS se eles existirem na requisição
     if (descricao) dadosDoDrink.descricao = descricao;
-    if (imagem) dadosDoDrink.imagem = imagem;
     if (categoria) dadosDoDrink.categoria = categoria;
-    
-    // Para o array, é uma boa prática verificar se ele é de fato um array
+    if (req.file) {
+      dadosDoDrink.imagem = req.file.path;
+    }
+
     if (ondeEncontrar && Array.isArray(ondeEncontrar)) {
       dadosDoDrink.ondeEncontrar = ondeEncontrar;
     }
-    
-    // Cria e salva o novo drink com o objeto de dados construído
+
     const novoDrink = new Drink(dadosDoDrink);
     const drinkSalvo = await novoDrink.save();
 
     res.status(201).json(drinkSalvo);
-
   } catch (error) {
     res.status(400).json({ message: 'Erro ao criar o drink.', error: error.message });
   }
@@ -184,31 +179,32 @@ const atualizarDrink = async (req, res) => {
     const drink = await Drink.findById(req.params.id);
 
     if (!drink) {
-      return res.status(404).json({ message: 'Drink não encontrada.' });
+      return res.status(404).json({ message: 'Drink não encontrado.' });
     }
 
-    // Autenticação
-    if (avaliacao.usuario.toString() !== req.user.id &&
-      req.user.credencial < 1
-    ) {
+    if (drink.usuario.toString() !== req.user.id && req.user.credencial < 1) {
       return res.status(401).json({ message: 'Usuário não autorizado.' });
     }
 
-    // Verifica se há campos a atualiazar
-    const novidade = {}
-    if (req.body.nome) novidade.nome = req.body.nome
-    if (req.body.descricao) novidade.descricao = req.body.descricao
-    if (req.body.imagem) novidade.imagem = req.body.imagem
+    const novidade = {};
+    if (req.body.nome) novidade.nome = req.body.nome;
+    if (req.body.descricao) novidade.descricao = req.body.descricao;
 
-    if (Object.keys(novidade).length === 0) {
+    if (req.file) {
+      if (drink.imagem) {
+        deleteImage(drink.imagem);
+      }
+      novidade.imagem = req.file.path;
+    }
+
+    if (Object.keys(novidade).length === 0 && !req.file) {
       return res.status(400).json({ message: 'Nenhum campo para atualizar foi fornecido.' });
     }
 
-    // Alteração
     const drinkAtualizado = await Drink.findByIdAndUpdate(
       req.params.id,
       { $set: novidade },
-      { new: true, runValidators: true } // {new: true} retorna o documento atualizado
+      { new: true, runValidators: true }
     );
 
     res.json(drinkAtualizado);
@@ -223,20 +219,22 @@ const deletarDrink = async (req, res) => {
     const drink = await Drink.findById(req.params.id);
 
     if (!drink) {
-      return res.status(404).json({ message: 'Drink não encontrada.' });
+      return res.status(404).json({ message: 'Drink não encontrado.' });
     }
 
-    // Autenticação
-    if (drink.usuario.toString() == req.user.id ||
-        req.user.credencial < 1
-    ) {
-        // Remoção
-        await Drink.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Drink removido com sucesso.' });
+    if (drink.usuario.toString() !== req.user.id && req.user.credencial < 1) {
+      return res.status(401).json({ message: 'Usuário não autorizado.' });
     }
-    return res.status(401).json({ message: 'Usuário não autorizado.' });
+
+    if (drink.imagem) {
+      deleteImage(drink.imagem);
+    }
+
+    await Drink.findByIdAndDelete(req.params.id);
+
+    res.json({ message: 'Drink removido com sucesso.' });
   } catch (err) {
-    res.status(500).json({ message: 'Erro no servidor.' });
+    res.status(500).json({ message: 'Erro no servidor.', error: err.message });
   }
 };
 

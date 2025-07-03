@@ -1,4 +1,5 @@
 const Estabelecimento = require('../models/Estabelecimento.js');
+const { deleteImage } = require('../utils/fileHelper.js');
 
 // GET /api/estabelecimento
 const listarEstabelecimentos = async (req, res) => {
@@ -12,25 +13,29 @@ const listarEstabelecimentos = async (req, res) => {
 
 // POST /api/estabelecimento
 const criarEstabelecimento = async (req, res) => {
-  if (!req.body.nome) {
+  const { nome, endereco } = req.body;
+
+  if (!nome) {
     return res.status(400).json({ message: 'O campo "nome" é obrigatório.' });
   }
 
-  // Cria o objeto dinamicamente
-  const novidade = {}
-  novidade.nome = req.body.nome
-  if (req.body.endereco) novidade.endereco = req.body.endereco
+  const dadosEstabelecimento = {
+    nome,
+  };
 
-  // Para imagem
-  if (req.file) novidade.imagem = req.file.path
+  if (endereco) dadosEstabelecimento.endereco = endereco;
 
-  const objeto = new Estabelecimento(novidade);
+  if (req.file) {
+    dadosEstabelecimento.imagem = req.file.path;
+  }
+
+  const novoEstabelecimento = new Estabelecimento(dadosEstabelecimento);
 
   try {
-    const objSalvo = await objeto.save();
-    res.status(201).json(objSalvo);
+    const estabelecimentoSalvo = await novoEstabelecimento.save();
+    res.status(201).json(estabelecimentoSalvo);
   } catch (err) {
-    res.status(400).json({ message: 'Erro ao salvar avaliação.', error: err.message });
+    res.status(400).json({ message: 'Erro ao salvar estabelecimento.', error: err.message });
   }
 };
 
@@ -53,31 +58,34 @@ const obterEstabelecimentoPorId = async (req, res) => {
 // PUT /api/estabelecimentos/:id
 const atualizarEstabelecimento = async (req, res) => {
   try {
-    const estabelecimento = await Estabelecimento.findById(req.body.id);
+    const estabelecimento = await Estabelecimento.findById(req.params.id);
     if (!estabelecimento) {
       return res.status(404).json({ message: 'Estabelecimento não encontrado.' });
     }
 
-    // Autenticação
     if (req.user.credencial < 1) {
       return res.status(401).json({ message: 'Usuário não autorizado.' });
     }
 
-    // Verifica se há campos a atualiazar
-    const novidade = {}
-    if (req.body.nome) novidade.nome = req.body.nome
-    if (req.body.endereco) novidade.endereco = req.body.endereco
-    if (req.body.imagem) novidade.imagem = req.body.imagem
+    const novidade = {};
+    if (req.body.nome) novidade.nome = req.body.nome;
+    if (req.body.endereco) novidade.endereco = req.body.endereco;
 
-    if (Object.keys(novidade).length === 0) {
+    if (req.file) {
+      if (estabelecimento.imagem) {
+        deleteImage(estabelecimento.imagem);
+      }
+      novidade.imagem = req.file.path;
+    }
+
+    if (Object.keys(novidade).length === 0 && !req.file) {
       return res.status(400).json({ message: 'Nenhum campo para atualizar foi fornecido.' });
     }
 
-    // Alteração
     const estAtualizado = await Estabelecimento.findByIdAndUpdate(
       req.params.id,
       { $set: novidade },
-      { new: true, runValidators: true } // {new: true} retorna o documento atualizado
+      { new: true, runValidators: true }
     );
 
     res.json(estAtualizado);
@@ -92,19 +100,22 @@ const deletarEstabelecimento = async (req, res) => {
     const estabelecimento = await Estabelecimento.findById(req.params.id);
 
     if (!estabelecimento) {
-      return res.status(404).json({ message: 'Estabelecimento não encontrada.' });
+      return res.status(404).json({ message: 'Estabelecimento não encontrado.' });
     }
 
-    // Autenticação
     if (req.user.credencial < 1) {
       return res.status(401).json({ message: 'Usuário não autorizado.' });
     }
 
+    if (estabelecimento.imagem) {
+      deleteImage(estabelecimento.imagem);
+    }
+
     await Estabelecimento.findByIdAndDelete(req.params.id);
 
-    res.json({ message: 'Estabelecimento removida com sucesso.' });
+    res.json({ message: 'Estabelecimento removido com sucesso.' });
   } catch (err) {
-    res.status(500).json({ message: 'Erro no servidor.' });
+    res.status(500).json({ message: 'Erro no servidor.', error: err.message });
   }
 };
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
+const upload = require('../middleware/uploadMiddleware'); // Importa o middleware de upload
 
 const {
   listarDrinks,
@@ -14,7 +15,8 @@ const {
 } = require('../controllers/drinkController');
 
 // Define as rotas de CRUD
-router.post('/', protect, criarDrink); // CREATE
+// A rota de criação agora usa o middleware de upload para aceitar uma imagem
+router.post('/', protect, upload.single('imagem'), criarDrink); // CREATE
 router.get('/', listarDrinks);         // READ ALL
 router.get('/:id', obterDrinkPorId);   // REAL ONE
 router.put('/:id', protect, atualizarDrink);    // UPDATE
