@@ -12,19 +12,7 @@ const generateToken = require('../utils/generateToken.js'); // Importamos nosso 
  */
 const alternarFavoritoDrink = async (req, res) => {
   try {
-    const usuarioLogado = req.user; // Usuário autenticado pelo middleware 'protect'
-    const { drinkId } = req.params;
-
-    let usuarioAlvoId;
-
-    // Autorização
-    if (usuarioLogado.credencial === 3 && req.body.usuarioAlvoId) {
-      // Se for super-usuário e especificar um alvo, ele age sobre o alvo
-      usuarioAlvoId = req.body.usuarioAlvoId;
-    } else {
-      // Caso contrário, age sobre a própria conta
-      usuarioAlvoId = usuarioLogado.id;
-    }
+    const { id: usuarioAlvoId, drinkId } = req.params;
 
     
     const usuarioAlvo = await Usuario.findById(usuarioAlvoId);
@@ -57,19 +45,7 @@ const alternarFavoritoDrink = async (req, res) => {
  */
 const alternarFavoritoEstabelecimento = async (req, res) => {
   try {
-    const usuarioLogado = req.user;
-    const { estId } = req.params; // ID do estabelecimento
-
-    let usuarioAlvoId;
-
-    // Autorização
-    if (usuarioLogado.credencial === 3 && req.body.usuarioAlvoId) {
-      // Se for super-usuário e especificar um alvo, ele age sobre o alvo
-      usuarioAlvoId = req.body.usuarioAlvoId;
-    } else {
-      // Caso contrário, age sobre a própria conta
-      usuarioAlvoId = usuarioLogado.id;
-    }
+    const { id: usuarioAlvoId, estId } = req.params; // ID do estabelecimento
 
     const usuarioAlvo = await Usuario.findById(usuarioAlvoId);
     if (!usuarioAlvo) {
@@ -103,19 +79,7 @@ const alternarFavoritoEstabelecimento = async (req, res) => {
  */
 const alternarSeguirUsuario = async (req, res) => {
   try {
-    const usuarioLogado = req.user;
-    const { alvoId } = req.params; // O usuário a ser seguido
-
-    let seguidorId; // O usuário que fará a ação de seguir
-
-    // Lógica de permissão
-    if (usuarioLogado.credencial === 3 && req.body.seguidorId) {
-      // Se for super-usuário e especificar um seguidor, ele age em nome desse seguidor
-      seguidorId = req.body.seguidorId;
-    } else {
-      // Caso contrário, o próprio usuário logado é o seguidor
-      seguidorId = usuarioLogado.id;
-    }
+    const { id: seguidorId, alvoId } = req.params; // O usuário que fará a ação de seguir e o usuário a ser seguido
 
     if (seguidorId === alvoId) {
       return res.status(400).json({ message: 'Um usuário não pode seguir a si mesmo.' });
