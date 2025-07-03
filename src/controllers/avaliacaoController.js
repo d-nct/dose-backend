@@ -120,8 +120,9 @@ const criarAvaliacao = async (req, res) => {
 const obterAvaliacaoPorId = async (req, res) => {
   try {
     const avaliacao = await Avaliacao.findById(req.params.id)
-      .populate('usuario', 'nome_usuario')
+      .populate('usuario', 'nome_usuario') 
       .populate('drink', 'nome imagem')           
+      .populate('estabelecimento', 'nome')           
     
     if (!avaliacao) {
       return res.status(404).json({ message: 'Avaliação não encontrada.' });
