@@ -12,7 +12,10 @@ const {
   alternarFavoritoDrink,
   alternarFavoritoEstabelecimento,
   alternarSeguirUsuario,
-  alternarAdm
+  alternarAdm,
+  obterAvaliacoesPorUsuario,
+  obterDrinksFavoritosPorUsuario,
+  obterEstabelecimentosFavoritosPorUsuario
 } = require('../controllers/usuarioController');
 
 // Define as rotas de CRUD
@@ -30,4 +33,9 @@ router.post('/seguir/:alvoId', protect, alternarSeguirUsuario);
 
 router.post('/adm/:id', protect, alternarAdm);
 
-module.exports = router;
+// Novas rotas
+router.get('/:id/avaliacoes', obterAvaliacoesPorUsuario);
+router.get('/:id/favoritos/drinks', obterDrinksFavoritosPorUsuario);
+router.get('/:id/favoritos/estabelecimentos', obterEstabelecimentosFavoritosPorUsuario);
+
+module.exports = router;''

@@ -1,4 +1,5 @@
 const Usuario = require('../models/Usuario.js');
+const Avaliacao = require('../models/Avaliacao.js');
 const bcrypt = require('bcryptjs');
 const generateToken = require('../utils/generateToken.js'); // Importamos nosso gerador
 
@@ -341,6 +342,41 @@ const deletarUsuario = async (req, res) => {
 };
 
 
+const obterAvaliacoesPorUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const avaliacoes = await Avaliacao.find({ usuario: id });
+    res.json(avaliacoes);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar avaliações do usuário.', error: error.message });
+  }
+};
+
+const obterDrinksFavoritosPorUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const usuario = await Usuario.findById(id).populate('drinksFavoritos');
+    if (!usuario) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+    res.json(usuario.drinksFavoritos);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar drinks favoritos do usuário.', error: error.message });
+  }
+};
+
+const obterEstabelecimentosFavoritosPorUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const usuario = await Usuario.findById(id).populate('estabelecimentosFavoritos');
+    if (!usuario) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+    res.json(usuario.estabelecimentosFavoritos);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar estabelecimentos favoritos do usuário.', error: error.message });
+  }
+};
 
 module.exports = {
   loginUsuario,
@@ -353,4 +389,7 @@ module.exports = {
   alternarFavoritoEstabelecimento,
   alternarSeguirUsuario,
   alternarAdm,
-};
+  obterAvaliacoesPorUsuario,
+  obterDrinksFavoritosPorUsuario,
+  obterEstabelecimentosFavoritosPorUsuario,
+};''
