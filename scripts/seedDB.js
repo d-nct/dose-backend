@@ -44,6 +44,7 @@ const seedDatabase = async () => {
       },
     ];
 
+    console.log(`Creating IBA Categories...`);
     const createdCategories = [];
     for (const catData of ibaCategoriesData) {
       const category = new Categoria(catData);
@@ -51,6 +52,7 @@ const seedDatabase = async () => {
       createdCategories.push(category);
       console.log(`Category created: '${category.nome}'`);
     }
+    console.log(`Ok!`);
 
     // 3. Create IBA drinks from CSV string
     const ibaDrinksCSV = `
@@ -161,9 +163,10 @@ Yellow Bird;Um coquetel tropical e frutado, com rum branco, Galliano, triple sec
 
     const drinksData = parseCSV(ibaDrinksCSV);
 
+    console.log(`Creating IBA Drinks...`);
     for (const drinkData of drinksData) {
     //   console.log(drinkData);
-      console.log(`Attempting to find category for drink '${drinkData.nome}'. Looking for category name: '${drinkData.categoria}'`);
+    //   console.log(`Attempting to find category for drink '${drinkData.nome}'. Looking for category name: '${drinkData.categoria}'`);
       const category = createdCategories.find(c => c.nome === drinkData.categoria);
       if (category) {
         const drink = new Drink({
@@ -174,11 +177,12 @@ Yellow Bird;Um coquetel tropical e frutado, com rum branco, Galliano, triple sec
           categoria: category._id,
         });
         await drink.save();
-        console.log(`Drink created: ${drink.nome} in category ${category.nome}`);
+        // console.log(`Drink created: ${drink.nome} in category ${category.nome}`);
       } else {
         console.warn(`Category not found for drink: ${drinkData.nome} (Category looked for: '${drinkData.categoria}')`);
       }
     }
+    console.log(`Ok!`);
 
     console.log('Database seeding complete!');
     process.exit(0);
