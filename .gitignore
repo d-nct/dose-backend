@@ -32,3 +32,4 @@ npm-shrinkwrap.json
 
 # Meus
 uploads*
+# scripts/seedDB.js
