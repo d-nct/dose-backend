@@ -266,9 +266,9 @@ const atualizarUsuario = async (req, res) => {
 
     // Verifica se há campos a atualiazar
     const novidade = {}
-    if (req.body.nome) novidade.nome = req.body.nome
+    if (req.body.nome_usuario) novidade.nome_usuario = req.body.nome_usuario
     if (req.body.email) novidade.email = req.body.email
-    if (req.body.hash_senha) novidade.hash_senha = req.body.hash_senha
+    // if (req.body.hash_senha) novidade.hash_senha = req.body.hash_senha
 
     if (Object.keys(novidade).length === 0) {
       return res.status(400).json({ message: 'Nenhum campo para atualizar foi fornecido.' });
@@ -353,6 +353,42 @@ const obterEstabelecimentosFavoritosPorUsuario = async (req, res) => {
   }
 };
 
+const alterarSenhaUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { senha_atual, nova_senha } = req.body;
+
+    if (!senha_atual) {
+      return res.status(400).json({ message: 'A senha atual é obrigatória.' });
+    } else if (!nova_senha) {
+      return res.status(400).json({ message: 'A nova senha é obrigatória.' });
+    } else if (senha_atual === nova_senha) {
+      return res.status(400).json({ message: 'A nova senha não pode ser igual à senha atual.' });
+    } else if (!bcrypt.compareSync(senha_atual, usuario.hash_senha)) {
+      return res.status(401).json({ message: 'Senha atual incorreta.' });
+    }
+
+    const usuario = await Usuario.findById(id);
+
+    if (!usuario) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    // Autorização: O usuário logado é o alvo OU tem credencial >= 2
+    if (req.user.id !== id && req.user.credencial < 2) {
+      return res.status(401).json({ message: 'Não autorizado a alterar a senha deste usuário.' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    usuario.hash_senha = await bcrypt.hash(nova_senha, salt);
+    await usuario.save();
+
+    res.json({ message: 'Senha alterada com sucesso.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao alterar a senha.', error: error.message });
+  }
+};
+
 module.exports = {
   loginUsuario,
   listarUsuarios,
@@ -367,4 +403,5 @@ module.exports = {
   obterAvaliacoesPorUsuario,
   obterDrinksFavoritosPorUsuario,
   obterEstabelecimentosFavoritosPorUsuario,
-};''
+  alterarSenhaUsuario,
+};

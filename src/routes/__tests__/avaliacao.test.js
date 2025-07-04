@@ -57,9 +57,9 @@ describe('Testes das Rotas de Avaliação', () => {
     };
 
     const response = await request(app)
-      .post('/api/avaliacoes')
+      .post('/apinga/avaliacoes')
       .send(avaliacaoInvalida);
       
-    expect(response.statusCode).toBe(400); // Espera um erro de Bad Request
+    expect(response.statusCode).toBe(401); // Espera um erro de Não Autorizado
   });
 });

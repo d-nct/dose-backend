@@ -15,7 +15,8 @@ const {
   alternarAdm,
   obterAvaliacoesPorUsuario,
   obterDrinksFavoritosPorUsuario,
-  obterEstabelecimentosFavoritosPorUsuario
+  obterEstabelecimentosFavoritosPorUsuario,
+  alterarSenhaUsuario
 } = require('../controllers/usuarioController');
 
 // Define as rotas de CRUD
@@ -37,5 +38,6 @@ router.post('/adm/:id', protect, alternarAdm);
 router.get('/:id/avaliacoes', obterAvaliacoesPorUsuario);
 router.get('/:id/favoritos/drinks', obterDrinksFavoritosPorUsuario);
 router.get('/:id/favoritos/estabelecimentos', obterEstabelecimentosFavoritosPorUsuario);
+router.put('/:id/senha', protect, alterarSenhaUsuario);
 
 module.exports = router;''
