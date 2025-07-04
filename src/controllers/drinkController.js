@@ -113,6 +113,7 @@ const removerOndeEncontrar = async (req, res) => {
 const listarDrinks = async (req, res) => {
   try {
     const drinks = await Drink.find()
+      .sort({ nome: 1 });         
     res.json(drinks);
   } catch (err) {
     res.status(500).json({ message: 'Erro ao buscar drinks.' });
